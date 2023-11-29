@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <button id="checkout-button">Оплатить</button>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+      var stripe = Stripe('{{ public_key }}');
+      var checkoutButton = document.getElementById('checkout-button');
+
+      checkoutButton.addEventListener('click', function () {
+        fetch(window.location.href, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        })
+        .then(response => response.json())
+        .then(session => {
+          // Перенаправление пользователя на страницу оплаты Stripe
+          return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .then(result => {
+          if (result.error) {
+            // Обработка ошибки
+            console.error(result.error.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });
+    </script>
+</body>
+</html>
